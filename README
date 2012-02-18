@@ -1,0 +1,111 @@
+Pyped: command that pipes data from bash to Python, and vice-versa
+=================================================================
+
+Ever wish you could do this::
+
+    $ ps aux | py "'-'.join(x.split()[:3])" | grep 0.1
+    user-2140-1.1
+    user-2207-0.1
+    root-5091-0.0
+    user-20717-0.0
+    user-20817-0.0
+
+Or this::
+
+    $ ls -1 | py -i "Counter([path.splitext(line)[1] for line in x]).items()"
+    (u'.sh', 2)
+    ('', 3)
+    (u'.sh~', 3)
+    (u'.py', 4)
+    (u'.desktop', 1)
+
+
+Pyped make that possible by giving you the `py` commande.
+
+How to install ?
+=================
+
+Just type::
+
+    pip install pyped
+
+How to use ?
+=============
+
+Usage::
+
+    shell_command | py [-options] "any python instructions" [| another_shell_function]
+
+Your python code will have access to the variable `x`, which will be a line from
+stdin converted to unicode. All lines from stdin will be stuffed
+to `x`, and then your python code will be executed.
+
+Your code MUST return something convertible to unicode, as unicode() will be called on it.
+
+E.G::
+
+    ls /etc/ | grep conf | tail | py "x.upper()"
+
+There is only one option at the moment::
+
+    -i
+
+If you pass `-i`, then `x` will not contain a string, but an iterable for which
+each call to `next()` return a line of stdin, converted to unicode.
+
+In that case you code MUST return an iterable for which
+each call to `next()` return an object convertible to unicode, as unicode
+will be called on it.
+
+E.G::
+
+    ls /etc/ | grep conf | tail | py -i "[i.upper() for i in x]"
+
+Note that before doing any processing, we import several modules so they are
+immidiatly available in your Python code::
+
+    import sys
+    import os
+    import re
+    import json
+    import base64
+    import calendar
+    import bz2
+    import pickle
+    import csv
+    import urllib
+    import urllib2
+    import zlib
+    import xml
+    import datetime
+    import itertools
+    import random
+    import hashlib
+    import operator
+    import tempfile
+
+    from os import path
+    from uuid import uuid1, uuid3, uuid4, uuid5
+    from datetime import datetime, date, time
+    from random import randint, random, randrange, choice
+    from collections import Counter, OrderedDict
+    from math import *
+
+    try:
+        import lxml
+    except ImportError:
+        pass
+
+    try:
+        import requests
+    except ImportError:
+        pass
+
+    try:
+        import envoy
+    except ImportError:
+        pass
+
+    try:
+        import tablib
+    except Imp

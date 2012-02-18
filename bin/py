@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4 nu
+
+import sys
+import os
+import re
+import json
+import base64
+import calendar
+import bz2
+import pickle
+import csv
+import urllib
+import urllib2
+import zlib
+import xml
+import datetime
+import itertools
+import random
+import hashlib
+import operator
+import tempfile
+
+from os import path
+from uuid import uuid1, uuid3, uuid4, uuid5
+from datetime import datetime, date, time
+from random import randint, random, randrange, choice
+from collections import Counter, OrderedDict
+from math import *
+
+try:
+    import lxml
+except ImportError:
+    pass
+
+try:
+    import requests
+except ImportError:
+    pass
+
+try:
+    import envoy
+except ImportError:
+    pass
+
+try:
+    import tablib
+except ImportError:
+    pass
+
+in_encoding = sys.stdin.encoding or 'utf8'
+
+if '-i' in sys.argv:
+    sys.argv.remove('-i')
+    command = u" ".join(arg.decode(in_encoding) for arg in sys.argv[1:]) or u"x"
+    x = (l.decode(in_encoding).strip() for l in sys.stdin)
+    exec u"for item in (%s): print unicode(item).encode('%s')" % (command, sys.stdout.encoding or 'utf8')
+else:
+    command = u" ".join(arg.decode(in_encoding) for arg in sys.argv[1:]) or u"x"
+    for x in sys.stdin:
+        x = x.decode(in_encoding).strip()
+        exec u"print unicode(%s).encode('%s')" % (command, sys.stdout.encoding or 'utf8')
+
