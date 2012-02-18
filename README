@@ -29,6 +29,9 @@ Just type::
 
     pip install pyped
 
+Please note this is alpha code, it will void your waranty, you may take weight,
+loose your job and your wife and endorse unspeakable believes.
+
 How to use ?
 =============
 
@@ -108,4 +111,5 @@ immidiatly available in your Python code::
 
     try:
         import tablib
-    except Imp
+    except ImportError:
+        pass
