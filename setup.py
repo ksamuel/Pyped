@@ -1,4 +1,11 @@
+
+import os
 from setuptools import setup, find_packages
+
+
+open('MANIFEST.in', 'w').write('\n'.join((
+    "include *.txt *.md",
+)))
 
 setup(
     name='Pyped',

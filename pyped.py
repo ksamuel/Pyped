@@ -2,6 +2,24 @@
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 
+"""
+Pyped is a command-line tool that let you process another
+command output with a Python one-liner like Perl or AWK.
+
+Like this:
+
+    $ ps aux | py "'-'.join(x.split()[:3])" | grep 0.1
+    user-2140-1.1
+    user-2207-0.1
+    root-5091-0.0
+    user-20717-0.0
+    user-20817-0.0
+
+More informations: https://github.com/ksamuel/Pyped
+
+"""
+
+
 __VERSION__ = "0.2"
 
 import sys
@@ -28,13 +46,13 @@ from math import *
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("expression", help="The Python expression to evaluate",
                         nargs="?", default="x")
     parser.add_argument("-i", help="The x variable will be an iterable on the "
                                    "whole stdin. Your expression must result in "
                                    "an iterable.", action="store_true")
-    parser.add_argument("-b", default="", nargs='?',
+    parser.add_argument("-b", default="", nargs='?', metavar="expression",
                         help="Python expression to evaluate before reading "
                               "stdin. E.G: modules import")
     parser.add_argument("-v", '--version', action="store_true",
