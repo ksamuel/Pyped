@@ -9,11 +9,6 @@ command output with a Python one-liner like Perl or AWK.
 Like this:
 
     $ ps aux | py "'-'.join(x.split()[:3])" | grep 0.1
-    user-2140-1.1
-    user-2207-0.1
-    root-5091-0.0
-    user-20717-0.0
-    user-20817-0.0
 
 More informations: https://github.com/ksamuel/Pyped
 
@@ -46,7 +41,10 @@ from math import *
 
 def main():
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+                          description=__doc__,
+                          formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("expression", help="The Python expression to evaluate",
                         nargs="?", default="x")
     parser.add_argument("-i", help="The x variable will be an iterable on the "
