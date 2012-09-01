@@ -2,18 +2,19 @@ from setuptools import setup, find_packages
 
 setup(
     name='Pyped',
-    version='0.1',
+    version='0.2',
     author='Kevin Samuel',
     author_email='kevin@yeleman.com',
-    packages=find_packages(),
-    license='Command that pipes data from bash to Python, and vice-versa',
-    long_description=open('README').read(),
-    provides=['py'],
-    description='Text based but human and VCS friendly task manager',
+    py_modules=['pyped'],
+    license='GPL2',
+    long_description=open('README.md').read(),
+    description='Command that pipes data from bash to Python, and vice-versa',
     url='http://github.com/ksamuel/Pyped',
     keywords="python, pipe",
     include_package_data=True,
-    scripts=['bin/py'],
+    entry_points={
+        'console_scripts': ['py = pyped:main'],
+     },
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python',
