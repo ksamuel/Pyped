@@ -48,7 +48,7 @@ one `x`, and everytime your python code will be executed.
 You'll also have access to the variable `i', an integer incremented at each
 call of you Python expression, starting from 0.
 
-Your code MUST return something convertible to unicode, as unicode() will be called on it.
+Your code MUST return something convertible to unicode, as unicode() will be called on the result.
 
 Without Pyped::
 
@@ -178,3 +178,7 @@ Some advices
 Do NOT print. Each element will be printed automatically.
 
 Carreful with " and ', as you are dealing with bash and Python at the same time.
+
+When doing a split(), you remove the line break. You may want to explicitly add it back.
+
+If you don't want to print a line, just return None instead of a unicode string: it will be skipped.

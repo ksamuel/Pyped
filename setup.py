@@ -9,7 +9,7 @@ open('MANIFEST.in', 'w').write('\n'.join((
 
 setup(
     name='Pyped',
-    version='0.2',
+    version='0.3',
     author='Kevin Samuel',
     author_email='kevin@yeleman.com',
     py_modules=['pyped'],
