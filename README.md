@@ -89,15 +89,16 @@ each call to `next()` return a line of stdin, converted to unicode.
 
 It is mainly used for processing that you want to apply to the whole stdin.
 
-If you use this option, your expression MUST result in an iterable for which
+If you use this option, your expression should result in an iterable for which
 each call to `next()` return an object convertible to unicode, as unicode
 will be called on it.
 
 E.G::
 
-    $ ls /etc/ | tail | py -i "['-'.join(x)]"
+    $ ls /etc/ | tail | ./pyped.py -i "['-'.join(i.strip() for i in x)]"
     wordpress-wpa_supplicant-X11-xdg-xml-xul-ext-xulrunner-1.9.2-y-ppa-manager.conf-zsh-zsh_command_not_found
 
+If you don't return an iterable, it will be printed as is.
 
 -b
 **
@@ -136,10 +137,39 @@ immidiatly available in your Python code::
 
     from os import path
     from uuid import uuid1, uuid3, uuid4, uuid5
-    from datetime import datetime, date, time
-    from random import randint, random, randrange, choice
+    from datetime import date, time
+    now = datetime.datetime.now
+    today = datetime.datetime.today
+    from random import randint, randrange, choice
     from collections import Counter, OrderedDict
     from math import *
+
+You can't set variables in that code.
+
+-a
+**
+
+Pass an expression you wish to run after reading from stdin.
+
+Is is executed in a finally clause, so it runs even if your code fails before.
+
+Mainly used for counters and cleanup.
+
+E.G::
+
+    $ ls /etc/ | tail | ./pyped.py "x" -a 'print i'
+    wordpress
+    wpa_supplicant
+    X11
+    xdg
+    xml
+    xul-ext
+    xulrunner-1.9.2
+    y-ppa-manager.conf
+    zsh
+    zsh_command_not_found
+    9
+
 
 --stdin-charset and --stdout-charset
 ************************************
@@ -182,3 +212,4 @@ Carreful with " and ', as you are dealing with bash and Python at the same time.
 When doing a split(), you remove the line break. You may want to explicitly add it back.
 
 If you don't want to print a line, just return None instead of a unicode string: it will be skipped.
+
