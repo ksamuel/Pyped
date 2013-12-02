@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 
 import os
 from setuptools import setup, find_packages
@@ -9,9 +11,9 @@ open('MANIFEST.in', 'w').write('\n'.join((
 
 setup(
     name='Pyped',
-    version='0.3',
+    version='1.0',
     author='Kevin Samuel',
-    author_email='kevin@yeleman.com',
+    author_email='kevin.samuel@yandex.com',
     py_modules=['pyped'],
     license='GPL2',
     long_description=open('README.md').read(),
@@ -19,6 +21,7 @@ setup(
     url='http://github.com/ksamuel/Pyped',
     keywords="python, pipe",
     include_package_data=True,
+    install_requires=['minibelt', 'arrow', 'requests', 'path.py'],
     entry_points={
         'console_scripts': ['py = pyped:main'],
      },

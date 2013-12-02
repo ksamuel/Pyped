@@ -1,20 +1,28 @@
 Pyped: command that pipes data from bash to Python, and vice-versa
 =================================================================
 
-Pyped is a command-line tool that let you process another command output with a Python one-liner like Perl or AWK.
+Pyped is a command-line tool that let you process another command
+output with a Python one-liner like Perl or AWK.
 
 Ever wish you could do this::
 
-    $ ps aux | py "'-'.join(x.split()[:3])" | grep 0.1
-    user-2140-1.1
-    user-2207-0.1
-    root-5091-0.0
-    user-20717-0.0
-    user-20817-0.0
+    $ ps aux | py "line = x.split()" "print(line[1], line[-1])" | grep worker
+    18921 [kworker/1:2]
+    22489 [kworker/3:0]
+    24065 [kworker/3:3]
+    24869 [kworker/u:3]
+    25463 [kworker/u:1]
+    25511 [kworker/2:2]
+    25720 [kworker/0:2]
+    26343 [kworker/0:1]
+    26491 [kworker/2:0]
+    26569 [kworker/1:0]
+    26592 [kworker/u:0]
+    26861 worker
 
 Or this::
 
-    $ ls -1 | py -i "Counter([path.splitext(line)[1] for line in x]).items()"
+    $ ls -1 | py -i "for x in Counter(path(x.split()[-1]).ext for x in l).items(): print(x)"
     (u'.sh', 2)
     ('', 3)
     (u'.sh~', 3)
@@ -39,16 +47,17 @@ How to use ?
 
 Usage::
 
-    shell_command | py [options] "any python instructions" [| another_shell_function]
+    shell_command | py [options] "any python one-liner" [another python one-liner] [| another_shell_function]
 
 Your python code will have access to the variable `x`, which will be a line from
-stdin converted to unicode. Each line from stdin will be stuffed to `x` one by
-one `x`, and everytime your python code will be executed.
+stdin converted to unicode (with no ending '\n'). Each line from stdin
+will be stuffed to `x` one by one, and your python code
+will be executed for each new value for `x`
 
 You'll also have access to the variable `i', an integer incremented at each
 call of you Python expression, starting from 0.
 
-Your code MUST return something convertible to unicode, as unicode() will be called on the result.
+Your code MUST print something, if you wish something to appear.
 
 Without Pyped::
 
@@ -66,7 +75,7 @@ Without Pyped::
 
 With Pyped::
 
-    $ ls /etc/ | tail | py "str(i) + ' ' + x.upper()"
+    $ ls /etc/ | tail | py "print('%s %s' % (i, x.upper()))"
     0 WORDPRESS
     1 WPA_SUPPLICANT
     2 X11
@@ -84,31 +93,26 @@ Options
 -i
 **
 
-If you pass `-i`, then `x` will not contain a string, but an iterable for which
-each call to `next()` return a line of stdin, converted to unicode.
+If you pass `-i`, then `x` will not exists, but `l` will contain
+an iterable for which each call to `next()` return a line of stdin,
+converted to unicode.
 
 It is mainly used for processing that you want to apply to the whole stdin.
 
-If you use this option, your expression should result in an iterable for which
-each call to `next()` return an object convertible to unicode, as unicode
-will be called on it.
-
 E.G::
 
-    $ ls /etc/ | tail | ./pyped.py -i "['-'.join(i.strip() for i in x)]"
+    $ ls /etc/ | tail | py -i "print('-'.join(i.strip() for i in l))"
     wordpress-wpa_supplicant-X11-xdg-xml-xul-ext-xulrunner-1.9.2-y-ppa-manager.conf-zsh-zsh_command_not_found
-
-If you don't return an iterable, it will be printed as is.
 
 -b
 **
 
-Pass an expression you wish to run before reading from stdin.
+Pass an expression you wish to run BEFORE reading from stdin.
 Mainly used for imports.
 
 E.G::
 
-    $ ls /etc/ | tail | py "pickle.dumps(x)" -b "import pickle"
+    $ ls /etc/ | tail | py "print(pickle.dumps(x))" -b "import pickle"
     Vwordpress
     p0
     .
@@ -117,39 +121,12 @@ E.G::
     .
     VX11
 
-
-Note that before doing any processing, we import several modules so they are
-immidiatly available in your Python code::
-
-    import sys
-    import os
-    import re
-    import json
-    import base64
-    import calendar
-    import csv
-    import datetime
-    import itertools
-    import random
-    import hashlib
-    import tempfile
-    import argparse
-
-    from os import path
-    from uuid import uuid1, uuid3, uuid4, uuid5
-    from datetime import date, time
-    now = datetime.datetime.now
-    today = datetime.datetime.today
-    from random import randint, randrange, choice
-    from collections import Counter, OrderedDict
-    from math import *
-
-You can't set variables in that code.
+This is executed only once.
 
 -a
 **
 
-Pass an expression you wish to run after reading from stdin.
+Pass an expression you wish to run AFTER reading all stdin.
 
 Is is executed in a finally clause, so it runs even if your code fails before.
 
@@ -170,11 +147,13 @@ E.G::
     zsh_command_not_found
     9
 
+This is executed only one.
 
---stdin-charset and --stdout-charset
-************************************
 
-Force the charset to decode input, and encode output. Otherwise, we try to
+--stdin-charset
+*****************
+
+Force the charset to decode input. Otherwise, we try to
 detect it, and fallback on UTF-8 if it fails.
 
 E.G::
@@ -193,23 +172,85 @@ E.G::
 
 Be careful, that could fail miserably if you choose a bad charset:
 
-    $ ls /etc/ | tail | py "é" --stdout-charset ascii
-    Traceback (most recent call last):
-      File "py", line 67, in <module>
-        exec u"print unicode((%s)).encode('%s')" % (command, out_encoding)
-      File "<string>", line 1
-        print unicode((é)).encode('ascii')
-                       ^
-    SyntaxError: invalid syntax
+    $ ls /etc/ | tail | py "é" --stdin-charset ascii
+    'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range(128)
 
-Some advices
-=============
+--rstrip=no
+***********
 
-Do NOT print. Each element will be printed automatically.
+Each line from stdin has .rstrip('\n') applied to it before being
+passed to your code so you can call `print()` without thinking about it.
 
-Carreful with " and ', as you are dealing with bash and Python at the same time.
+However, if you do wish to keep the line breaks, use --rstrip=no.
 
-When doing a split(), you remove the line break. You may want to explicitly add it back.
+The usual result::
 
-If you don't want to print a line, just return None instead of a unicode string: it will be skipped.
+    $ ls /etc/ | py -i "for x in list(l)[:5]: print(x)"
+    total 2,5M
+    drwxr-xr-x 204 root    root     12K déc.   1 16:40 .
+    drwxr-xr-x  26 root    root    4,0K nov.  12 07:37 ..
+    drwxr-xr-x   3 root    root    4,0K mars   7  2013 acpi
+    -rw-r--r--   1 root    root    3,0K avril 26  2011 adduser.conf
 
+The result if you supress right stripping::
+
+    $ ls /etc/ | py -i "for x in list(l)[:5]: print(x)" --rstrip=no
+    total 2,5M
+
+    drwxr-xr-x 204 root    root     12K déc.   1 16:40 .
+
+    drwxr-xr-x  26 root    root    4,0K nov.  12 07:37 ..
+
+    drwxr-xr-x   3 root    root    4,0K mars   7  2013 acpi
+
+    -rw-r--r--   1 root    root    3,0K avril 26  2011 adduser.conf
+
+
+Imports
+==========
+
+Before doing any processing, we import several modules so they are
+immediatly available in your Python code::
+
+    import sys
+    import os
+    import re
+    import json
+    import base64
+    import calendar
+    import csv
+    import itertools
+    import random
+    import hashlib
+    import tempfile
+    import argparse
+    import random
+    import math
+
+    from itertools import *
+    from uuid import uuid4
+    from datetime import datetime, timedelta
+    from collections import Counter, OrderedDict
+
+We also import these 4 third party libraries::
+
+    import arrow # better datetime
+    import requests # better http request
+
+    from minibelt import * # better itertools
+    from path import path # better path handling
+
+They should have been installed by setuptools automatically, so if you use pip or
+easy_install, you are good to go.
+
+If you didn't, and you don't have them installed, these imports will be ignored.
+
+While Pyped is based on Python 2.7, it also imports some backported features
+from Python 3::
+
+    from __future__ import (unicode_literals, absolute_import,
+                            print_function, division)
+
+This means `print` is a function, any string is unicode by default and does
+not need to be prefixed by `u`, division doesn't truncate and
+imports are absolute (but you can use the relative import syntax).
