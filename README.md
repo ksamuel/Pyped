@@ -54,7 +54,7 @@ stdin converted to unicode (with no ending '\n'). Each line from stdin
 will be stuffed to `x` one by one, and your python code
 will be executed for each new value for `x`
 
-You'll also have access to the variable `i', an integer incremented at each
+You'll also have access to the variable `i`, an integer incremented at each
 call of you Python expression, starting from 0.
 
 Your code MUST print something, if you wish something to appear.
@@ -116,13 +116,13 @@ Options
 =======
 
 -i
-**
+***
 
 If you pass `-i`, then `x` will not exists, but `l` will contain
 an iterable for which each call to `next()` return a line of stdin,
 converted to unicode.
 
-It is mainly used for processing that you want to apply to the whole stdin.
+It is mainly used for processing you wish to apply to the whole stdin such as joining or for global counters.
 
 E.G::
 
@@ -130,7 +130,7 @@ E.G::
     wordpress-wpa_supplicant-X11-xdg-xml-xul-ext-xulrunner-1.9.2-y-ppa-manager.conf-zsh-zsh_command_not_found
 
 -b
-**
+***
 
 Pass an expression you wish to run BEFORE reading from stdin.
 Mainly used for imports.
@@ -149,7 +149,7 @@ E.G::
 This is executed only once.
 
 -a
-**
+***
 
 Pass an expression you wish to run AFTER reading all stdin.
 
@@ -201,7 +201,7 @@ Be careful, that could fail miserably if you choose a bad charset:
     'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range(128)
 
 --rstrip=no
-***********
+************
 
 Each line from stdin has .rstrip('\n') applied to it before being
 passed to your code so you can call `print()` without thinking about it.
