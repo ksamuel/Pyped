@@ -87,6 +87,31 @@ With Pyped::
     8 ZSH
     9 ZSH_COMMAND_NOT_FOUND
 
+You can even make very long one time scripts::
+
+    $ ps aux | py "
+    if i > 0:
+        values = x.split()
+        user, pid = values[:2]
+        command = ' '.join(values[10:])
+        if user != 'root': 
+            print('\"%s\";\"%s\";\"%s\"' % (user.upper(), pid, command))
+    "
+    "SYSLOG";"741";"rsyslogd -c5"
+    "AVAHI";"788";"avahi-daemon: running"
+    "AVAHI";"791";"avahi-daemon: chroot helper"
+    "DAEMON";"1271";"atd"
+    "WHOOPSIE";"1289";"whoopsie"
+    "MYSQL";"1304";"/usr/sbin/mysqld"
+    "KEVIN";"1699";"ps aux"
+    "KEVIN";"2167";"-"
+    "TIMIDITY";"2202";"/usr/bin/timidity -Os -iAD"
+    "RTKIT";"2594";"/usr/lib/rtkit/rtkit-daemon"
+    "KEVIN";"2763";"/usr/bin/gnome-keyring-daemon --daemonize --login"
+    "KEVIN";"2774";"gnome-session --session=ubuntu"
+
+
+
 Options
 =======
 
