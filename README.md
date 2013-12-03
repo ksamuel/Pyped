@@ -159,7 +159,7 @@ Mainly used for counters and cleanup.
 
 E.G::
 
-    $ ls /etc/ | tail | ./pyped.py "x" -a 'print i'
+    $ ls /etc/ | tail | py "x" -a 'print i'
     wordpress
     wpa_supplicant
     X11
