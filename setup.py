@@ -1,17 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
-import os
-from setuptools import setup, find_packages
-
-
-open('MANIFEST.in', 'w').write('\n'.join((
-    "include *.txt *.md",
-)))
+from setuptools import setup
 
 setup(
     name='Pyped',
-    version='1.0',
+    version='1.1',
     author='Kevin Samuel',
     author_email='kevin.samuel@yandex.com',
     py_modules=['pyped'],
@@ -23,7 +14,7 @@ setup(
     include_package_data=True,
     install_requires=['minibelt', 'arrow', 'requests', 'path.py'],
     entry_points={
-        'console_scripts': ['py = pyped:main'],
+        'console_scripts': ['pyp = pyped:main'],
      },
     classifiers=[
         'Intended Audience :: Developers',
