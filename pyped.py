@@ -11,7 +11,7 @@ command output with a Python one-liner like Perl or AWK.
 
 Like this:
 
-    $ ps aux | py "'-'.join(x.split()[:3]) + '\n'" | grep 0.1
+    $ ps aux | py "line = x.split()" "print(line[1], line[-1])" | grep worker
 
 More informations: https://github.com/ksamuel/Pyped
 
