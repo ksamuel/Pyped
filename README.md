@@ -1,12 +1,17 @@
 Pyped: command that pipes data from bash to Python, and vice-versa
 =================================================================
 
+WARNING: since the last version the command line name "py" has been
+renamed to "pyp" to avoid conflict with the new tool in the Python 
+stdlib named "py". It means pyped is now incompatible with the
+"Python Power at the Prompt" project sharing the same name and goals.
+
 Pyped is a command-line tool that let you process another command
 output with a Python one-liner like Perl or AWK.
 
 Ever wish you could do this::
 
-    $ ps aux | py "line = x.split()" "print(line[1], line[-1])" | grep worker
+    $ ps aux | pyp "line = x.split()" "print(line[1], line[-1])" | grep worker
     18921 [kworker/1:2]
     22489 [kworker/3:0]
     24065 [kworker/3:3]
@@ -22,7 +27,7 @@ Ever wish you could do this::
 
 Or this::
 
-    $ ls -1 | py -i "for x in Counter(path(x.split()[-1]).ext for x in l).items(): print(x)"
+    $ ls -1 | pyp -i "for x in Counter(path(x.split()[-1]).ext for x in l).items(): print(x)"
     (u'.sh', 2)
     ('', 3)
     (u'.sh~', 3)
@@ -47,7 +52,7 @@ How to use ?
 
 Usage::
 
-    shell_command | py [options] "any python one-liner" [another python one-liner] [| another_shell_function]
+    shell_command | pyp [options] "any python one-liner" [another python one-liner] [| another_shell_function]
 
 Your python code will have access to the variable `x`, which will be a line from
 stdin converted to unicode (with no ending '\n'). Each line from stdin
@@ -75,7 +80,7 @@ Without Pyped::
 
 With Pyped::
 
-    $ ls /etc/ | tail | py "print('%s %s' % (i, x.upper()))"
+    $ ls /etc/ | tail | pyp "print('%s %s' % (i, x.upper()))"
     0 WORDPRESS
     1 WPA_SUPPLICANT
     2 X11
@@ -89,7 +94,7 @@ With Pyped::
 
 You can even make very long one time scripts::
 
-    $ ps aux | py "
+    $ ps aux | pyp "
     if i > 0:
         values = x.split()
         user, pid = values[:2]
@@ -126,7 +131,7 @@ It is mainly used for processing you wish to apply to the whole stdin such as jo
 
 E.G::
 
-    $ ls /etc/ | tail | py -i "print('-'.join(i.strip() for i in l))"
+    $ ls /etc/ | tail | pyp -i "print('-'.join(i.strip() for i in l))"
     wordpress-wpa_supplicant-X11-xdg-xml-xul-ext-xulrunner-1.9.2-y-ppa-manager.conf-zsh-zsh_command_not_found
 
 -b
@@ -137,7 +142,7 @@ Mainly used for imports.
 
 E.G::
 
-    $ ls /etc/ | tail | py "print(pickle.dumps(x))" -b "import pickle"
+    $ ls /etc/ | tail | pyp "print(pickle.dumps(x))" -b "import pickle"
     Vwordpress
     p0
     .
@@ -159,7 +164,7 @@ Mainly used for counters and cleanup.
 
 E.G::
 
-    $ ls /etc/ | tail | py "x" -a 'print i'
+    $ ls /etc/ | tail | pyp "x" -a 'print i'
     wordpress
     wpa_supplicant
     X11
@@ -183,7 +188,7 @@ detect it, and fallback on UTF-8 if it fails.
 
 E.G::
 
-    $ ls /etc/ | tail | py "x.split('-')[0]" --stdin-charset ascii
+    $ ls /etc/ | tail | pyp "x.split('-')[0]" --stdin-charset ascii
     wordpress
     wpa_supplicant
     X11
@@ -197,7 +202,7 @@ E.G::
 
 Be careful, that could fail miserably if you choose a bad charset:
 
-    $ ls /etc/ | tail | py "é" --stdin-charset ascii
+    $ ls /etc/ | tail | pyp "é" --stdin-charset ascii
     'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range(128)
 
 --rstrip=no
@@ -210,7 +215,7 @@ However, if you do wish to keep the line breaks, use --rstrip=no.
 
 The usual result::
 
-    $ ls /etc/ | py -i "for x in list(l)[:5]: print(x)"
+    $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)"
     total 2,5M
     drwxr-xr-x 204 root    root     12K déc.   1 16:40 .
     drwxr-xr-x  26 root    root    4,0K nov.  12 07:37 ..
@@ -219,7 +224,7 @@ The usual result::
 
 The result if you supress right stripping::
 
-    $ ls /etc/ | py -i "for x in list(l)[:5]: print(x)" --rstrip=no
+    $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)" --rstrip=no
     total 2,5M
 
     drwxr-xr-x 204 root    root     12K déc.   1 16:40 .
