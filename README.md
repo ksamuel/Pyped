@@ -1,10 +1,10 @@
 Pyped: command that pipes data from bash to Python, and vice-versa
 =================================================================
 
-WARNING: since the last version the command line name "py" has been
-renamed to "pyp" to avoid conflict with the new tool in the Python 
+*WARNING: since the last version the command line name "py" has been
+renamed to "pyp" to avoid conflict with the new tool in the Python
 stdlib named "py". It means pyped is now incompatible with the
-"Python Power at the Prompt" project sharing the same name and goals.
+"Python Power at the Prompt" project sharing the same name and goals.*
 
 Pyped is a command-line tool that let you process another command
 output with a Python one-liner like Perl or AWK.
@@ -99,7 +99,7 @@ You can even make very long one time scripts::
         values = x.split()
         user, pid = values[:2]
         command = ' '.join(values[10:])
-        if user != 'root': 
+        if user != 'root':
             print('\"%s\";\"%s\";\"%s\"' % (user.upper(), pid, command))
     "
     "SYSLOG";"741";"rsyslogd -c5"
