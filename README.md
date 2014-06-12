@@ -146,8 +146,9 @@ E.G::
     XDG
     XML
 
-WARNING : other flags accept Python **statement** (if, for, etc). This flags
-only accept **expressions** (stuff you can pass directly to the print function).
+WARNING : other flags usually accept Python **statement** (if, for, etc).  If
+you use this flag, most of them will now only accect **expressions**
+(stuff you can pass directly to the print function).
 
 -f
 ***

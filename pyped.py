@@ -119,6 +119,17 @@ def main():
     # from globals
     context = globals()
 
+    def execute_all(context):
+        """ Execute all python statements/expressions in the given context """
+        for expression in args.expressions:
+            command = expression.decode(in_encoding)
+            # command is an expression you need to print
+            if args.p:
+                print(eval(command, context))
+            # execute as is
+            else:
+                exec command in context
+
     if args.version:
         print('Pyped', __VERSION__)
         sys.exit(0)
@@ -132,10 +143,7 @@ def main():
             # we decode all the stdin content and add it to the
             # exec context
             context['l'] = (l.decode(in_encoding).rstrip(args.rstrip) for l in sys.stdin)
-
-            for expression in args.expressions:
-                command = expression.decode(in_encoding)
-                exec expression.decode(in_encoding) in context
+            execute_all(context)
 
         # if stdin must be filtered according to an expression
         elif args.f:
@@ -154,9 +162,7 @@ def main():
         # stdin is json, just pass it as is
         elif args.json:
             context['j'] = json.loads(sys.stdin.read().decode(in_encoding))
-            for expression in args.expressions:
-                command = expression.decode(in_encoding)
-                exec expression.decode(in_encoding) in context
+            execute_all(context)
 
         else:
             # if stdin must be passed line by line
@@ -165,27 +171,12 @@ def main():
                 for i, x in enumerate(sys.stdin):
                     context['x'] = x.decode(in_encoding).rstrip(args.rstrip)
                     context['i'] = i
-                    for expression in args.expressions:
-                        command = expression.decode(in_encoding)
-
-                        # command is an expression you need to print
-                        if args.p:
-                            print(eval(command, context))
-                        # execute as is
-                        else:
-                            exec command in context
+                    execute_all(context)
 
             # stdin is not redirected or piped : ignore it and just
             # execute the code
             else:
-                for expression in args.expressions:
-                    command = expression.decode(in_encoding)
-                    # command is an expression you need to print
-                    if args.p:
-                        print(eval(command, context))
-                    # execute as is
-                    else:
-                        exec command in context
+                execute_all(context)
 
     except Exception as e:
         sys.exit("%s: %s" % (e.__class__.__name__, e))
