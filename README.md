@@ -44,28 +44,32 @@ Just type::
 
     pip install pyped
 
-Please note this is beta code, it will void your waranty, you may take weight,
-loose your job and your wife and endorse unspeakable believes.
+It works with Python 2.7 and 3.4, although it uses __future__ imports to
+enforce a lot of 3.X stuff such as unicode literals and the print() function.
 
 How to use ?
 =============
 
 Usage::
 
-    shell_command | pyp [options] "any python one-liner" [another python one-liner] [| another_shell_function]
+    $ pyp "any python one-liner"
+    $ shell_command | pyp [options] "any python one-liner" [another python one-liner] [| another_shell_function]
 
-Your python code will have access to the variable `x`, which will be a line from
+In the second example, you pipe data to pyped. In that case, you python code
+will have access to the variable `x`, which will be a line from
 stdin converted to unicode (with no ending '\n'). Each line from stdin
 will be stuffed to `x` one by one, and your python code
 will be executed for each new value for `x`
 
 You'll also have access to the variable `i`, an integer incremented at each
-call of you Python expression, starting from 0.
+call of you Python statement, starting from 0.
 
 Your code MUST print something, if you wish something to appear.
 
 Without Pyped::
 
+    $ echo "test"
+    test
     $ ls /etc | tail
     wordpress
     wpa_supplicant
@@ -80,19 +84,15 @@ Without Pyped::
 
 With Pyped::
 
-    $ ls /etc/ | tail | pyp "print('%s %s' % (i, x.upper()))"
-    0 WORDPRESS
-    1 WPA_SUPPLICANT
-    2 X11
-    3 XDG
-    4 XML
-    5 XUL-EXT
-    6 XULRUNNER-1.9.2
-    7 Y-PPA-MANAGER.CONF
-    8 ZSH
-    9 ZSH_COMMAND_NOT_FOUND
+    $ pyp "print('test')"
+    test
+    $ ls /etc/ | tail -n 4 | pyp "print('%s %s' % (i, x.upper()))"
+    0 WPA_SUPPLICANT
+    1 X11
+    2 XDG
+    3 XML
 
-You can even make very long one time scripts::
+You can even make long one time scripts::
 
     $ ps aux | pyp "
     if i > 0:
@@ -108,13 +108,12 @@ You can even make very long one time scripts::
     "DAEMON";"1271";"atd"
     "WHOOPSIE";"1289";"whoopsie"
     "MYSQL";"1304";"/usr/sbin/mysqld"
-    "KEVIN";"1699";"ps aux"
-    "KEVIN";"2167";"-"
+    "ME";"1699";"ps aux"
+    "ME";"2167";"-"
     "TIMIDITY";"2202";"/usr/bin/timidity -Os -iAD"
     "RTKIT";"2594";"/usr/lib/rtkit/rtkit-daemon"
-    "KEVIN";"2763";"/usr/bin/gnome-keyring-daemon --daemonize --login"
-    "KEVIN";"2774";"gnome-session --session=ubuntu"
-
+    "ME";"2763";"/usr/bin/gnome-keyring-daemon --daemonize --login"
+    "ME";"2774";"gnome-session --session=ubuntu"
 
 
 Options
@@ -131,18 +130,48 @@ It is mainly used for processing you wish to apply to the whole stdin such as jo
 
 E.G::
 
-    $ ls /etc/ | tail | pyp -i "print('-'.join(i.strip() for i in l))"
-    wordpress-wpa_supplicant-X11-xdg-xml-xul-ext-xulrunner-1.9.2-y-ppa-manager.conf-zsh-zsh_command_not_found
+    $ ls /etc/ | tail -n 4 | pyp -i "print('-'.join(i.strip() for i in l))"
+    wpa_supplicant-X11-xdg-xml
+
+-p
+***
+
+Automatically print the result of your Python expression.
+
+E.G::
+
+    $ ls /etc/ | tail -n 4 | pyp -p 'x.upper()'
+    WPA_SUPPLICANT
+    X11
+    XDG
+    XML
+
+WARNING : other flags accept Python **statement** (if, for, etc). This flags
+only accept **expressions** (stuff you can pass directly to the print function).
+
+-f
+***
+
+Filter stdin using a Python expression (like grep, but on any python condition).
+
+E.G::
+
+    $ cat /etc/fstab | pyp -f 'len(x) < 45 and "/" in x'
+    # / was on /dev/sda7 during installation
+    # swap was on /dev/sda6 during installation
+
+WARNING : other flags accept Python **statement** (if, for, etc). This flags
+only accept **expressions** (stuff you can pass directly a if keyword).
 
 -b
 ***
 
-Pass an expression you wish to run BEFORE reading from stdin.
+Pass a statement you wish to run BEFORE reading from stdin.
 Mainly used for imports.
 
 E.G::
 
-    $ ls /etc/ | tail | pyp "print(pickle.dumps(x))" -b "import pickle"
+    $ ls /etc/ | tail -n 4 | pyp "print(pickle.dumps(x))" -b "import pickle"
     Vwordpress
     p0
     .
@@ -156,7 +185,7 @@ This is executed only once.
 -a
 ***
 
-Pass an expression you wish to run AFTER reading all stdin.
+Pass a statement you wish to run AFTER reading all stdin.
 
 Is is executed in a finally clause, so it runs even if your code fails before.
 
@@ -164,20 +193,14 @@ Mainly used for counters and cleanup.
 
 E.G::
 
-    $ ls /etc/ | tail | pyp "x" -a 'print i'
-    wordpress
+    $ ls /etc/ | tail -n 4 | pyp "x" -a 'print(i)'
     wpa_supplicant
     X11
     xdg
     xml
-    xul-ext
-    xulrunner-1.9.2
-    y-ppa-manager.conf
-    zsh
-    zsh_command_not_found
-    9
+    3
 
-This is executed only one.
+This is executed only once.
 
 
 --stdin-charset
@@ -188,30 +211,24 @@ detect it, and fallback on UTF-8 if it fails.
 
 E.G::
 
-    $ ls /etc/ | tail | pyp "x.split('-')[0]" --stdin-charset ascii
-    wordpress
+    $ ls /etc/ | tail -n 4 | pyp "x.split('-')[0]" --stdin-charset ascii
     wpa_supplicant
     X11
     xdg
     xml
-    xul
-    xulrunner
-    y
-    zsh
-    zsh_command_not_found
 
 Be careful, that could fail miserably if you choose a bad charset:
 
-    $ ls /etc/ | tail | pyp "é" --stdin-charset ascii
+    $ ls /etc/ | tail -n 4 | pyp "é" --stdin-charset ascii
     'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range(128)
 
---rstrip=no
+--rstrip
 ************
 
 Each line from stdin has .rstrip('\n') applied to it before being
 passed to your code so you can call `print()` without thinking about it.
 
-However, if you do wish to keep the line breaks, use --rstrip=no.
+However, if you do wish to keep the line breaks, use --rstrip=''.
 
 The usual result::
 
@@ -224,7 +241,7 @@ The usual result::
 
 The result if you supress right stripping::
 
-    $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)" --rstrip=no
+    $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)" --rstrip=''
     total 2,5M
 
     drwxr-xr-x 204 root    root     12K déc.   1 16:40 .
@@ -234,6 +251,15 @@ The result if you supress right stripping::
     drwxr-xr-x   3 root    root    4,0K mars   7  2013 acpi
 
     -rw-r--r--   1 root    root    3,0K avril 26  2011 adduser.conf
+
+
+--json
+************
+
+Parse stdin as JSON, and make the whole thing accessible in a "j" variable.
+
+    $ echo '[{"foo": "bar"}]' | pyp -j "print(j[0]['foo'])"
+    bar
 
 
 Imports
@@ -284,3 +310,5 @@ from Python 3::
 This means `print` is a function, any string is unicode by default and does
 not need to be prefixed by `u`, division doesn't truncate and
 imports are absolute (but you can use the relative import syntax).
+
+This way, pyped run on Python 3.
