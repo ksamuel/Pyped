@@ -77,29 +77,38 @@ def main():
                           formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("expressions", help="The Python statement to evaluate",
-                        nargs="+", default="print(x)")
+                        nargs="+")
 
-    parser.add_argument("-i", help="An 'l' variable will be an iterable on the "
+    parser.add_argument("-i", help="An 'l' variable will be an Iterable on the "
                                    "whole stdin. You'll have to iterate "
                                    "manually", action="store_true")
 
     parser.add_argument("-b", default="", nargs='?', metavar="expression",
-                        help="Python statement to evaluate before reading "
+                        help="Python statement to evaluate Before reading "
                               "stdin. E.G: modules import")
 
     parser.add_argument("-a", default="", nargs='?', metavar="expression",
-                        help="Python statement to evaluate after reading "
+                        help="Python statement to evaluate After reading "
                               "stdin. THIS IS IN A FINALLY CLAUSE")
+
+    parser.add_argument("-q", action="store_true",
+                        help="Quietly ignore exception.")
 
     parser.add_argument("-f", action="store_true",
                         help="Filter stdin according to the result of expression."
                               " If expression is True, the line is printed.")
 
+    parser.add_argument("-s", default="",   help="Split stdin, and pass it as "
+                        "'f'. 'x' and 'i' or 'stdin' are still available.")
+
     parser.add_argument("-p", action="store_true",
-                        help="Automatically print the result of each expression.")
+                        help="Automatically Print the result of each expression.")
 
     parser.add_argument("-v", '--version', action="store_true",
-                        help="Display the script version and quit")
+                        help="Display the script Version and quit")
+
+    parser.add_argument("--full", action="store_true",
+                        help="Pass the full stdin content as 'stdin'")
 
     parser.add_argument("--json", action="store_true",
                         help="Parse stdin as JSON and pass the result as 'j'")
@@ -124,11 +133,17 @@ def main():
         for expression in args.expressions:
             command = expression.decode(in_encoding)
             # command is an expression you need to print
-            if args.p:
-                print(eval(command, context))
-            # execute as is
-            else:
-                exec command in context
+            try:
+                if args.p:
+                    res = eval(command, context)
+                    if res is not None:
+                        print(eval(command, context))
+                # execute as is
+                else:
+                    exec command in context
+            except Exception as e:
+                if not args.q:
+                    raise e
 
     if args.version:
         print('Pyped', __VERSION__)
@@ -136,7 +151,13 @@ def main():
 
     try:
         if args.b:
-            exec args.b.decode(in_encoding) in context
+            try:
+                exec args.b.decode(in_encoding) in context
+            except Exception as e:
+                if not args.q:
+                    raise e
+        if args.s:
+            splitter = args.s.decode(in_encoding)
 
         # if stdin must be passed as an iterable
         if args.i:
@@ -145,16 +166,34 @@ def main():
             context['l'] = (l.decode(in_encoding).rstrip(args.rstrip) for l in sys.stdin)
             execute_all(context)
 
+        elif args.full:
+            # we decode all the stdin content and add it to the
+            # exec context
+            context['stdin'] = sys.stdin.read().decode(in_encoding)
+            if args.s:
+                context['f'] = re.split(splitter,  context['stdin'])
+            execute_all(context)
+
         # if stdin must be filtered according to an expression
         elif args.f:
             # we decode all the stdin content, decode each line,
             # pass it as x, check if the result is True, and if yes
             # print it.
              for i, x in enumerate(sys.stdin):
-                context['x'] = x.decode(in_encoding).rstrip(args.rstrip)
+
+                line = x.decode(in_encoding).rstrip(args.rstrip)
+                if args.s:
+                    context['f'] = re.split(splitter, line)
+
+                context['x'] = line
                 context['i'] = i
                 for expression in args.expressions:
-                    if not eval(expression.decode(in_encoding), context):
+                    try:
+                        if not eval(expression.decode(in_encoding), context):
+                            break
+                    except Exception as e:
+                        if not args.q:
+                            raise e
                         break
                 else:
                     print(context['x'])
@@ -169,7 +208,12 @@ def main():
             mode = os.fstat(0).st_mode
             if stat.S_ISFIFO(mode) or stat.S_ISREG(mode):
                 for i, x in enumerate(sys.stdin):
-                    context['x'] = x.decode(in_encoding).rstrip(args.rstrip)
+
+                    line = x.decode(in_encoding).rstrip(args.rstrip)
+                    if args.s:
+                        context['f'] = re.split(splitter, line)
+
+                    context['x'] = line
                     context['i'] = i
                     execute_all(context)
 
@@ -179,12 +223,16 @@ def main():
                 execute_all(context)
 
     except Exception as e:
-        sys.exit("%s: %s" % (e.__class__.__name__, e))
+        if not args.q:
+            sys.exit("%s: %s" % (e.__class__.__name__, e))
 
     finally:
         if args.a:
-            exec args.a.decode(in_encoding) in context
-
+            try:
+                exec args.a.decode(in_encoding) in context
+            except Exception as e:
+                if not args.q:
+                    raise e
 
 if __name__ == '__main__':
     main()

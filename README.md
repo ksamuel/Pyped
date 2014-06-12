@@ -146,20 +146,39 @@ E.G::
     XDG
     XML
 
+If your expression returns None, the line is not printed.
+
 WARNING : other flags usually accept Python **statement** (if, for, etc).  If
 you use this flag, most of them will now only accect **expressions**
 (stuff you can pass directly to the print function).
 
+-s
+***
+
+Split input using a Python regex. Result will be stored in "f". 'x', 'i' and
+'stdin' are still available.
+
+E.G::
+
+    $ echo "a   b c" | pyp -s "\s+" "print(f)"
+    [u'a', u'b', u'c']
+    $ echo "a-b-c" | pyp -s "-" "print(f)" "print(x)"
+    [u'a', u'b', u'c']
+    a-b-c
+
+
 -f
 ***
 
-Filter stdin using a Python expression (like grep, but on any python condition).
+Filter input using a Python expression (like grep, but on any python condition).
 
 E.G::
 
     $ cat /etc/fstab | pyp -f 'len(x) < 45 and "/" in x'
     # / was on /dev/sda7 during installation
     # swap was on /dev/sda6 during installation
+
+If an exception is raised in quiet mode, the line is skiped.
 
 WARNING : other flags accept Python **statement** (if, for, etc). This flags
 only accept **expressions** (stuff you can pass directly a if keyword).
@@ -202,6 +221,36 @@ E.G::
     3
 
 This is executed only once.
+
+-q
+***
+
+Quietly ignore exceptions.
+
+
+--full
+*****************
+
+Pass the entire content of the standard input in a "stdin" variable.
+
+E.G::
+
+    $ cat /etc/fstab | pyp  "print(len(x))"
+    45
+    1
+    62
+    74
+    63
+    1
+    70
+    40
+    93
+    43
+    91
+    118
+
+    $ cat /etc/fstab | pyp --full  "print(len(stdin))"
+    713
 
 
 --stdin-charset
