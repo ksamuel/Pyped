@@ -20,7 +20,7 @@ More informations: https://github.com/ksamuel/Pyped
 """
 
 
-__VERSION__ = "1.2"
+__VERSION__ = "1.3"
 
 
 # we won't use all of these, they are imported to be available to

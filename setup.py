@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Pyped',
-    version='1.2',
+    version='1.3',
     author='Kevin Samuel',
     author_email='kevin.samuel@yandex.com',
     py_modules=['pyped'],
