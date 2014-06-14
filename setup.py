@@ -1,8 +1,26 @@
-from setuptools import setup
+
+import sys
+import subprocess
+
+from setuptools import setup, Command
+
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        errno = subprocess.call([sys.executable, 'runtests.py', 'tests.py'])
+        raise SystemExit(errno)
+
 
 setup(
     name='Pyped',
-    version='1.3',
+    cmdclass = {'test': PyTest},
+    version='1.4',
     author='Kevin Samuel',
     author_email='kevin.samuel@yandex.com',
     py_modules=['pyped'],
@@ -13,7 +31,7 @@ setup(
     url='http://github.com/ksamuel/Pyped',
     keywords="python, pipe",
     include_package_data=True,
-    install_requires=['minibelt', 'arrow', 'requests', 'path.py'],
+    install_requires=['minibelt', 'arrow', 'requests', 'path.py', "six"],
     entry_points={
         'console_scripts': ['pyp = pyped:main'],
      },
