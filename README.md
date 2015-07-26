@@ -9,7 +9,7 @@ stdlib named "py". It means pyped is now incompatible with the
 Pyped is a command-line tool that let you process another command
 output with a Python one-liner like Perl or AWK.
 
-Ever wish you could do this::
+Ever wish you could do this:
 
     $ ps aux | pyp "line = x.split()" "print(line[1], line[-1])" | grep worker
     18921 [kworker/1:2]
@@ -25,7 +25,7 @@ Ever wish you could do this::
     26592 [kworker/u:0]
     26861 worker
 
-Or this::
+Or this:
 
     $ ls -1 | pyp -i "for x in Counter(path(x.split()[-1]).ext for x in l).items(): print(x)"
     (u'.sh', 2)
@@ -35,12 +35,12 @@ Or this::
     (u'.desktop', 1)
 
 
-Pyped make that possible by giving you the `py` commande.
+Pyped make that possible by giving you the `pyp` commande.
 
 How to install ?
 =================
 
-Just type::
+Just type:
 
     pip install pyped
 
@@ -50,7 +50,7 @@ enforce a lot of 3.X stuff such as unicode literals and the print() function.
 How to use ?
 =============
 
-Usage::
+Usage:
 
     $ pyp "any python one-liner"
     $ shell_command | pyp [options] "any python one-liner" [another python one-liner] [| another_shell_function]
@@ -66,7 +66,7 @@ call of you Python statement, starting from 0.
 
 Your code MUST print something, if you wish something to appear.
 
-Without Pyped::
+Without Pyped:
 
     $ echo "test"
     test
@@ -82,7 +82,7 @@ Without Pyped::
     zsh
     zsh_command_not_found
 
-With Pyped::
+With Pyped:
 
     $ pyp "print('test')"
     test
@@ -92,7 +92,7 @@ With Pyped::
     2 XDG
     3 XML
 
-You can even make long one time scripts::
+You can even make long one time scripts:
 
     $ ps aux | pyp "
     if i > 0:
@@ -128,7 +128,7 @@ converted to unicode.
 
 It is mainly used for processing you wish to apply to the whole stdin such as joining or for global counters.
 
-E.G::
+E.G:
 
     $ ls /etc/ | tail -n 4 | pyp -i "print('-'.join(i.strip() for i in l))"
     wpa_supplicant-X11-xdg-xml
@@ -138,7 +138,7 @@ E.G::
 
 Automatically print the result of your Python expression.
 
-E.G::
+E.G:
 
     $ ls /etc/ | tail -n 4 | pyp -p 'x.upper()'
     WPA_SUPPLICANT
@@ -158,7 +158,7 @@ you use this flag, most of them will now only accect **expressions**
 Split input using a Python regex. Result will be stored in "f". 'x', 'i' and
 'stdin' are still available.
 
-E.G::
+E.G:
 
     $ echo "a   b c" | pyp -s "\s+" "print(f)"
     [u'a', u'b', u'c']
@@ -189,7 +189,7 @@ only accept **expressions** (stuff you can pass directly a if keyword).
 Pass a statement you wish to run BEFORE reading from stdin.
 Mainly used for imports.
 
-E.G::
+E.G:
 
     $ ls /etc/ | tail -n 4 | pyp "print(pickle.dumps(x))" -b "import pickle"
     Vwordpress
@@ -211,7 +211,7 @@ Is is executed in a finally clause, so it runs even if your code fails before.
 
 Mainly used for counters and cleanup.
 
-E.G::
+E.G:
 
     $ ls /etc/ | tail -n 4 | pyp "x" -a 'print(i)'
     wpa_supplicant
@@ -233,7 +233,7 @@ Quietly ignore exceptions.
 
 Pass the entire content of the standard input in a "stdin" variable.
 
-E.G::
+E.G:
 
     $ cat /etc/fstab | pyp  "print(len(x))"
     45
@@ -259,7 +259,7 @@ E.G::
 Force the charset to decode input. Otherwise, we try to
 detect it, and fallback on UTF-8 if it fails.
 
-E.G::
+E.G:
 
     $ ls /etc/ | tail -n 4 | pyp "x.split('-')[0]" --stdin-charset ascii
     wpa_supplicant
@@ -280,7 +280,7 @@ passed to your code so you can call `print()` without thinking about it.
 
 However, if you do wish to keep the line breaks, use --rstrip=''.
 
-The usual result::
+The usual result:
 
     $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)"
     total 2,5M
@@ -289,7 +289,7 @@ The usual result::
     drwxr-xr-x   3 root    root    4,0K mars   7  2013 acpi
     -rw-r--r--   1 root    root    3,0K avril 26  2011 adduser.conf
 
-The result if you supress right stripping::
+The result if you supress right stripping:
 
     $ ls /etc/ | pyp -i "for x in list(l)[:5]: print(x)" --rstrip=''
     total 2,5M
@@ -316,7 +316,7 @@ Imports
 ==========
 
 Before doing any processing, we import several modules so they are
-immediatly available in your Python code::
+immediatly available in your Python code:
 
     import sys
     import os
@@ -338,7 +338,7 @@ immediatly available in your Python code::
     from datetime import datetime, timedelta
     from collections import Counter, OrderedDict
 
-We also import these 4 third party libraries::
+We also import these 4 third party libraries:
 
     import arrow # better datetime
     import requests # better http request
@@ -352,7 +352,7 @@ easy_install, you are good to go.
 If you didn't, and you don't have them installed, these imports will be ignored.
 
 While Pyped is based on Python 2.7, it also imports some backported features
-from Python 3::
+from Python 3:e
 
     from __future__ import (unicode_literals, absolute_import,
                             print_function, division)
